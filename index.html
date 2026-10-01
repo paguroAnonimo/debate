@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debate App - Duello a Due</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #F5F5DC;
+            --text: #0f172a;
+            --card-bg: #F0FFFF;
+            --light-gray: #f1f5f9;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+        }
+        h1, h2 { color: var(--primary); }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], select, input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        button:hover { background-color: #1d4ed8; }
+        .hidden { display: none; }
+        
+        /* Stili per il timer */
+        #timerDisplay {
+            font-size: 64px;
+            font-weight: bold;
+            margin: 20px 0;
+            font-variant-numeric: tabular-nums;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .controls button { width: auto; }
+        .speaker-info {
+            background: #eff6ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+        }
+
+        /* Stili per la valutazione */
+        .eval-box {
+            background-color: var(--light-gray);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .eval-box h3 {
+            margin-top: 0;
+            color: #1e293b;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 10px;
+        }
+        .criterion {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 0;
+        }
+        .criterion:last-child {
+            border-bottom: none;
+        }
+        .crit-text {
+            flex: 1;
+            padding-right: 15px;
+        }
+        .crit-title {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 3px;
+        }
+        .crit-desc {
+            font-size: 13px;
+            color: #64748b;
+        }
+        .score-select {
+            width: 70px !important;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .winner-text {
+            font-size: 28px;
+            color: #10b981;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- SCHERMATA 1: SETUP -->
+<div class="container" id="setupScreen">
+    <h1>Debate: Configurazione</h1>
+    <div class="form-group">
+        <label>Nome Giocatore 1</label>
+        <input type="text" id="p1Name" placeholder="Es. Marco">
+    </div>
+    <div class="form-group">
+        <label>Nome Giocatore 2</label>
+        <input type="text" id="p2Name" placeholder="Es. Anna">
+    </div>
+    <div class="form-group">
+        <label>Scegli la Mozione</label>
+        <select id="motionSelect">
+            <!-- TECNOLOGIA E IA -->
+            <optgroup label="Tecnologia e IA">
+                <option value="L'intelligenza artificiale generativa farà più male che bene all'istruzione e alla creatività umana.">L'IA generativa danneggerà istruzione e creatività</option>
+                <option value="I social media dovrebbero richiedere l'identificazione con documento d'identità obbligatorio.">Social media: obbligo di documento d'identità</option>
+                <option value="Il lavoro da remoto permanente (smart working) distrugge la comunità lavorativa e la crescita dei giovani.">Il lavoro da remoto permanente è un errore</option>
+                <option value="Lo sviluppo dell'intelligenza artificiale dovrebbe essere messo in pausa globale finché non avremo regole di sicurezza ferree.">Pausa globale allo sviluppo dell'Intelligenza Artificiale</option>
+                <option value="Le criptovalute sono una speculazione pericolosa e dovrebbero essere vietate a livello globale.">Le criptovalute dovrebbero essere vietate</option>
+                <option value="I genitori non dovrebbero avere il diritto di pubblicare foto dei figli minori sui social media.">Divieto ai genitori di postare i figli sui social</option>
+            </optgroup>
+
+            <!-- SOCIETA' E DIRITTI -->
+            <optgroup label="Società e Diritti">
+                <option value="Il voto dovrebbe essere reso obbligatorio per legge con sanzioni per i non votanti.">Voto obbligatorio per legge</option>
+                <option value="I cibi ultra-processati dovrebbero essere regolamentati e vietati nelle pubblicità come il tabacco.">Cibo spazzatura: regole severe come per il tabacco</option>
+                <option value="Dovrebbe essere introdotto un reddito di base universale (UBI) per tutti i cittadini.">Introduzione del Reddito di Base Universale</option>
+                <option value="La settimana lavorativa dovrebbe essere ridotta per legge a 4 giorni (a parità di stipendio).">Settimana lavorativa di 4 giorni obbligatoria</option>
+                <option value="L'assistenza sanitaria dovrebbe essere totalmente gratuita e pubblica, abolendo le assicurazioni sanitarie private.">Abolizione della sanità privata</option>
+                <option value="Tutti i cittadini dovrebbero completare un anno di servizio civile o militare obbligatorio a 18 anni.">Servizio civile o militare obbligatorio a 18 anni</option>
+            </optgroup>
+
+            <!-- AMBIENTE ED ECONOMIA -->
+            <optgroup label="Ambiente ed Economia">
+                <option value="La crescita economica infinita è incompatibile con il pianeta: bisogna puntare alla 'decrescita'.">Decrescita economica necessaria per l'ambiente</option>
+                <option value="Gli Stati dovrebbero investire prioritariamente sull'energia nucleare per la transizione ecologica.">Nucleare come priorità per la transizione ecologica</option>
+                <option value="Il turismo di massa nelle città d'arte dovrebbe essere limitato tramite quote e permessi a numero chiuso.">Numero chiuso per il turismo di massa</option>
+                <option value="I voli a corto raggio dovrebbero essere vietati dove esiste un'alternativa in treno sotto le 3 ore.">Divieto di voli aerei a corto raggio</option>
+                <option value="Le aziende produttrici di carne dovrebbero pagare una 'tassa ecologica' pesante per l'impatto ambientale degli allevamenti.">Tassa ecologica pesante sulla carne</option>
+            </optgroup>
+
+            <!-- SCUOLA ED EDUCAZIONE -->
+            <optgroup label="Scuola ed Educazione">
+                <option value="Lo studio della letteratura classica andrebbe ridotto a favore di competenze digitali pratiche.">Meno letteratura classica, più competenze digitali</option>
+                <option value="L'uso degli smartphone dovrebbe essere totalmente vietato nelle scuole di ogni ordine e grado.">Divieto totale di smartphone nelle scuole</option>
+                <option value="I compiti a casa andrebbero aboliti completamente nelle scuole primarie e secondarie inferiori.">Abolizione dei compiti a casa</option>
+                <option value="I voti numerici a scuola creano solo stress e dovrebbero essere sostituiti da valutazioni puramente discorsive.">Abolizione dei voti numerici a scuola</option>
+                <option value="L'educazione finanziaria e al risparmio dovrebbe essere una materia obbligatoria fin dalle scuole medie.">Educazione finanziaria obbligatoria a scuola</option>
+            </optgroup>
+
+            <!-- INTRATTENIMENTO, SPORT E CULTURA -->
+            <optgroup label="Intrattenimento e Cultura">
+                <option value="Lo sport professionistico femminile dovrebbe ricevere gli stessi esatti salari e incentivi di quello maschile.">Parità salariale totale nello sport professionistico</option>
+                <option value="I videogiochi violenti desensibilizzano i giovani e dovrebbero subire censure più severe.">Maggiore censura sui videogiochi violenti</option>
+                <option value="Le grandi opere d'arte rubate durante il colonialismo devono essere restituite immediatamente ai paesi di origine.">Restituzione delle opere d'arte coloniali</option>
+                <option value="È immorale finanziare l'esplorazione spaziale quando abbiamo ancora povertà e fame sulla Terra.">Fermare l'esplorazione spaziale per risolvere i problemi terrestri</option>
+            </optgroup>
+            
+            <!-- TEMI LEGGERI E DIVERTENTI (Per allenarsi) -->
+            <optgroup label="Dibattiti Leggeri (Per allenamento)">
+                <option value="L'ananas sulla pizza è un abominio culinario che non dovrebbe esistere.">L'ananas sulla pizza è un abominio</option>
+                <option value="Essere invisibili è un superpotere nettamente superiore alla capacità di volare.">Invisibilità superiore al volo</option>
+                <option value="I cani sono innegabilmente animali domestici migliori dei gatti.">I cani sono animali domestici migliori dei gatti</option>
+                <option value="La lettura di un buon libro è sempre superiore alla visione del film corrispondente.">Il libro è sempre meglio del film</option>
+            </optgroup>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Chi sarà a FAVORE (Pro)?</label>
+        <select id="proSelect">
+            <option value="1">Giocatore 1</option>
+            <option value="2">Giocatore 2</option>
+        </select>
+    </div>
+    <button onclick="startDebate()">Inizia Dibattito</button>
+</div>
+
+<!-- SCHERMATA 2: DIBATTITO (TIMER E FASI) -->
+<div class="container hidden" id="debateScreen">
+    <h2 id="phaseTitle">Fase</h2>
+    <p><strong>Mozione:</strong> <span id="currentMotion"></span></p>
+    
+    <div class="speaker-info" id="speakerInfo">
+        <h3 style="margin-top:0;" id="currentSpeakerName">Ricerca Autonoma</h3>
+        <p id="speakerRole" style="margin-bottom:0;">Entrambi i giocatori si preparano.</p>
+    </div>
+
+    <div class="form-group" style="text-align: center;">
+        <label>Imposta Minuti:</label>
+        <input type="number" id="minutesInput" value="5" min="1" max="15" style="width: 80px; text-align: center;">
+        <button onclick="setTimer()" style="width: auto; padding: 5px 15px;">Aggiorna Timer</button>
+    </div>
+
+    <div id="timerDisplay">05:00</div>
+    
+    <div class="controls">
+        <button onclick="toggleTimer()" id="playPauseBtn">Avvia</button>
+        <button onclick="nextPhase()">Prossima Fase</button>
+    </div>
+</div>
+
+<!-- SCHERMATA 3: VALUTAZIONE -->
+<div class="container hidden" id="evaluationScreen">
+    <h1>Valutazione Finale</h1>
+    <p>Assegnate un punteggio da 1 (Scarso) a 5 (Eccellente) all'avversario.</p>
+
+    <!-- Modulo: P1 valuta P2 (Quindi voti per P2) -->
+    <div class="eval-box">
+        <h3 id="evalTitleP2">Valutazione per Giocatore 2 (Compila Giocatore 1)</h3>
+        <div id="criteriaP2Container"></div>
+    </div>
+
+    <!-- Modulo: P2 valuta P1 (Quindi voti per P1) -->
+    <div class="eval-box">
+        <h3 id="evalTitleP1">Valutazione per Giocatore 1 (Compila Giocatore 2)</h3>
+        <div id="criteriaP1Container"></div>
+    </div>
+
+    <button onclick="calculateWinner()">Calcola Risultati</button>
+</div>
+
+<!-- SCHERMATA 4: RISULTATI -->
+<div class="container hidden" id="resultsScreen">
+    <h1>Risultati del Dibattito</h1>
+    <div class="winner-text" id="winnerText">Vince Marco!</div>
+    
+    <div style="display: flex; justify-content: space-around; margin: 30px 0;">
+        <div class="eval-box" style="width: 40%; text-align: center;">
+            <h3 id="resName1">Giocatore 1</h3>
+            <h1 style="font-size: 48px; margin: 10px 0;" id="resScore1">0</h1>
+            <p>su 25 punti</p>
+        </div>
+        <div class="eval-box" style="width: 40%; text-align: center;">
+            <h3 id="resName2">Giocatore 2</h3>
+            <h1 style="font-size: 48px; margin: 10px 0;" id="resScore2">0</h1>
+            <p>su 25 punti</p>
+        </div>
+    </div>
+
+    <button onclick="location.reload()">Inizia un nuovo dibattito</button>
+</div>
+
+<script>
+    let player1, player2, proPlayer, conPlayer, motion;
+    let currentPhaseIndex = 0;
+    let timerInterval;
+    let timeLeft = 0;
+    let isPlaying = false;
+
+    // Struttura delle fasi
+    const phases = [
+        { title: "Fase 0: Ricerca Autonoma", role: "Entrambi", desc: "Cercate dati e preparate gli argomenti.", defaultMins: 5 },
+        { title: "Fase 1: Introduzione", role: "Pro", desc: "Presenta la tesi e i primi due argomenti a supporto.", defaultMins: 2 },
+        { title: "Fase 1: Introduzione", role: "Contro", desc: "Presenta la tesi e i propri argomenti principali.", defaultMins: 2 },
+        { title: "Fase 2: Confutazione", role: "Pro", desc: "Attacca i punti deboli della tesi avversaria.", defaultMins: 3 },
+        { title: "Fase 2: Confutazione", role: "Contro", desc: "Risponde agli attacchi e contrattacca.", defaultMins: 3 },
+        { title: "Fase 3: Cross-Examination", role: "Pro", desc: "Fai domande all'avversario.", defaultMins: 2 },
+        { title: "Fase 3: Cross-Examination", role: "Contro", desc: "Fai domande all'avversario.", defaultMins: 2 },
+        { title: "Fase 4: Conclusione", role: "Pro", desc: "Arringa finale. Riassumi la tua posizione.", defaultMins: 1 },
+        { title: "Fase 4: Conclusione", role: "Contro", desc: "Arringa finale. Riassumi la tua posizione.", defaultMins: 1 }
+    ];
+
+    // Criteri di valutazione
+    const criteriaList = [
+        { id: "logic", title: "Solidità Logica", desc: "Gli argomenti sono logici, fondati su prove/esempi concreti e privi di fallacie?" },
+        { id: "refute", title: "Confutazione", desc: "Ha risposto efficacemente agli attacchi e smontato le tesi avversarie?" },
+        { id: "clarity", title: "Chiarezza", desc: "Il discorso è stato strutturato, ordinato, nei tempi e facile da seguire?" },
+        { id: "pressure", title: "Gestione della Pressione", desc: "Ha mantenuto la calma ed è stato pronto nelle risposte e nel botta e risposta?" },
+        { id: "style", title: "Stile e Fair Play", desc: "Tono rispettoso, costruttivo e focalizzato sulle idee (nessun attacco personale)." }
+    ];
+
+    function startDebate() {
+        player1 = document.getElementById('p1Name').value || "Giocatore 1";
+        player2 = document.getElementById('p2Name').value || "Giocatore 2";
+        motion = document.getElementById('motionSelect').value;
+        let proChoice = document.getElementById('proSelect').value;
+
+        if (proChoice === "1") {
+            proPlayer = player1;
+            conPlayer = player2;
+        } else {
+            proPlayer = player2;
+            conPlayer = player1;
+        }
+
+        document.getElementById('setupScreen').classList.add('hidden');
+        document.getElementById('debateScreen').classList.remove('hidden');
+        document.getElementById('currentMotion').innerText = motion;
+        
+        loadPhase();
+    }
+
+    // --- FUNZIONI DEL TIMER ---
+    function loadPhase() {
+        if (currentPhaseIndex >= phases.length) {
+            // Fine dibattito, mostra schermata valutazioni
+            document.getElementById('debateScreen').classList.add('hidden');
+            setupEvaluation();
+            return;
+        }
+
+        clearInterval(timerInterval);
+        isPlaying = false;
+        document.getElementById('playPauseBtn').innerText = "Avvia";
+
+        let phase = phases[currentPhaseIndex];
+        document.getElementById('phaseTitle').innerText = phase.title;
+        
+        let speakerName = "Entrambi";
+        if (phase.role === "Pro") speakerName = proPlayer + " (A Favore)";
+        if (phase.role === "Contro") speakerName = conPlayer + " (Contro)";
+        
+        document.getElementById('currentSpeakerName').innerText = "Tocca a: " + speakerName;
+        document.getElementById('speakerRole').innerText = phase.desc;
+
+        document.getElementById('minutesInput').value = phase.defaultMins;
+        setTimer();
+    }
+
+    function setTimer() {
+        let mins = parseInt(document.getElementById('minutesInput').value);
+        if (isNaN(mins) || mins <= 0) mins = 1;
+        timeLeft = mins * 60;
+        updateDisplay();
+    }
+
+    function updateDisplay() {
+        let m = Math.floor(timeLeft / 60);
+        let s = timeLeft % 60;
+        document.getElementById('timerDisplay').innerText = 
+            String(m).padStart(2, '0') + ":" + String(s).padStart(2, '0');
+    }
+
+    function toggleTimer() {
+        if (isPlaying) {
+            clearInterval(timerInterval);
+            document.getElementById('playPauseBtn').innerText = "Riprendi";
+        } else {
+            if (timeLeft <= 0) return;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('playPauseBtn').innerText = "Tempo Scaduto";
+                    isPlaying = false;
+                }
+            }, 1000);
+            document.getElementById('playPauseBtn').innerText = "Pausa";
+        }
+        isPlaying = !isPlaying;
+    }
+
+    function nextPhase() {
+        currentPhaseIndex++;
+        loadPhase();
+    }
+
+    // --- FUNZIONI DI VALUTAZIONE ---
+    function generateCriteriaHTML(targetPlayerId) {
+        let html = '';
+        criteriaList.forEach(c => {
+            html += `
+            <div class="criterion">
+                <div class="crit-text">
+                    <span class="crit-title">${c.title}</span>
+                    <div class="crit-desc">${c.desc}</div>
+                </div>
+                <select id="score_${targetPlayerId}_${c.id}" class="score-select">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3" selected>3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+            </div>`;
+        });
+        return html;
+    }
+
+    function setupEvaluation() {
+        document.getElementById('evaluationScreen').classList.remove('hidden');
+        
+        // P1 valuta P2 (punteggio di P2)
+        document.getElementById('evalTitleP2').innerText = `Valutazione per ${player2} (Compila ${player1})`;
+        document.getElementById('criteriaP2Container').innerHTML = generateCriteriaHTML('p2');
+
+        // P2 valuta P1 (punteggio di P1)
+        document.getElementById('evalTitleP1').innerText = `Valutazione per ${player1} (Compila ${player2})`;
+        document.getElementById('criteriaP1Container').innerHTML = generateCriteriaHTML('p1');
+    }
+
+    function calculateWinner() {
+        let p1Total = 0;
+        let p2Total = 0;
+
+        // Somma voti per P1
+        criteriaList.forEach(c => {
+            p1Total += parseInt(document.getElementById(`score_p1_${c.id}`).value);
+        });
+
+        // Somma voti per P2
+        criteriaList.forEach(c => {
+            p2Total += parseInt(document.getElementById(`score_p2_${c.id}`).value);
+        });
+
+        // Nascondi form, mostra risultati
+        document.getElementById('evaluationScreen').classList.add('hidden');
+        document.getElementById('resultsScreen').classList.remove('hidden');
+
+        // Mostra Nomi e Punteggi
+        document.getElementById('resName1').innerText = player1;
+        document.getElementById('resScore1').innerText = p1Total;
+        document.getElementById('resName2').innerText = player2;
+        document.getElementById('resScore2').innerText = p2Total;
+
+        // Determina il vincitore
+        let winnerMsg = "";
+        if (p1Total > p2Total) {
+            winnerMsg = `🏆 Il vincitore è ${player1}!`;
+        } else if (p2Total > p1Total) {
+            winnerMsg = `🏆 Il vincitore è ${player2}!`;
+        } else {
+            winnerMsg = `🤝 Pareggio! Un dibattito alla pari.`;
+        }
+        document.getElementById('winnerText').innerText = winnerMsg;
+    }
+</script>
+
+</body>
+</html>
